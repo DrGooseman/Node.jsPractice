@@ -1,14 +1,14 @@
 {
-  "name": "nodejs-complete-guide",
+  "name": "nodejs-practice",
   "version": "1.0.0",
-  "description": "Complete Node.js Guide",
+  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
     "start-server": "node app.js"
   },
-  "author": "Maximilian Schwarzmüller",
+  "author": "James Quinn",
   "license": "ISC",
   "devDependencies": {
     "dotenv": "^8.2.0",
