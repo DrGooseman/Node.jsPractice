@@ -21,13 +21,18 @@ exports.postAddProduct = (req, res, next) => {
   //   description,
   // })
   req.user
-    .createProduct()
+    .createProduct({
+      title,
+      price,
+      imageUrl,
+      description,
+    })
     .then((result) => {
       console.log("Created Product.");
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(error);
+      console.log(err);
     });
   // product
   //   .save()
