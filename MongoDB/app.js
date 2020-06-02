@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
+const mongoose = require("mongoose");
 
 const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
@@ -38,35 +39,9 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-Product.belongsTo(User, { contraints: true, onDelete: "CASCADE" });
-User.hasMany(Product);
-User.hasOne(Cart);
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem });
-Product.belongsToMany(Cart, { through: CartItem });
-User.hasMany(Order);
-Order.belongsToMany(Product, { through: OrderItem });
-
-sequelize
-  //.sync({ force: true })
-  .sync()
-  .then((result) => {
-    return User.findByPk(1);
+mongoose
+  .connect(process.env.MONGO_CONNECTION_STRING)
+  .then(() => {
+    app.listen(3000, () => console.log("Server Running"));
   })
-  .then((user) => {
-    if (!user) {
-      return User.create({ name: "Max", email: "text@test.com" });
-    }
-    return user;
-  })
-  .then((user) => {
-    // console.log(user);
-    return user.createCart();
-    app.listen(3000);
-  })
-  .then((cart) => {
-    app.listen(3000);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => console.log(err));

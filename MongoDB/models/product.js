@@ -1,61 +1,24 @@
-const Sequelize = require("sequelize");
+const mongoose = require("mongoose");
 
-const sequelize = require("../util/database");
+const Schema = mongoose.Schema;
 
-const Product = sequelize.define("product", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
+const productSchema = new Schema({
   title: {
-    type: Sequelize.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
   price: {
-    type: Sequelize.DOUBLE,
-    allowNull: false,
-  },
-  imageUrl: {
-    type: Sequelize.STRING,
-    allowNull: false,
+    type: Number,
+    required: true,
   },
   description: {
-    type: Sequelize.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
   },
 });
 
-module.exports = Product;
-
-// const db = require("../util/database");
-
-// const Cart = require("./cart");
-
-// module.exports = class Product {
-//   constructor(id, title, imageUrl, description, price) {
-//     this.id = id;
-//     this.title = title;
-//     this.imageUrl = imageUrl;
-//     this.description = description;
-//     this.price = price;
-//   }
-
-//   save() {
-//     return db.execute(
-//       "INSERT INTO products (title, price, imageUrl, description) VALUES (?, ?, ?, ?)",
-//       [this.title, this.price, this.imageUrl, this.description]
-//     );
-//   }
-
-//   static fetchAll() {
-//     return db.execute("SELECT * FROM products");
-//   }
-
-//   static findById(id) {
-//     return db.execute("SELECT * FROM products WHERE products.id = ?", [id]);
-//   }
-
-//   static deleteById(id) {}
-// };
+module.exports = mongoose.model("Product", productSchema);
