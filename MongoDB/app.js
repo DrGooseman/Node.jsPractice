@@ -57,14 +57,6 @@ app.use(errorController.get404);
 mongoose
   .connect(process.env.MONGO_CONNECTION_STRING)
   .then(() => {
-    // const user = new User({
-    //   name: "Jim",
-    //   email: "jim@test.com",
-    //   cart: {
-    //     items: [],
-    //   },
-    // });
-    // user.save();
     app.listen(3000, () => console.log("Server Running"));
   })
   .catch((err) => console.log(err));
