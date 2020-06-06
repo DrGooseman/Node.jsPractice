@@ -6,6 +6,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -15,6 +16,7 @@ const store = new MongoDBStore({
   uri: process.env.MONGO_CONNECTION_STRING,
   collection: "sessions",
 });
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -33,6 +35,7 @@ app.use(
     store,
   })
 );
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
   //5ed79de1d1015146f4ab86e5
@@ -46,6 +49,12 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => console.log(err));
+});
+
+app.use((req, res, next) => {
+  res.locals.isLoggedIn = req.session.isLoggedIn;
+  csrfToken = req.csrfToken();
+  next();
 });
 
 app.use("/admin", adminRoutes);
