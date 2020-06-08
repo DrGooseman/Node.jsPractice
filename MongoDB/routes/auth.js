@@ -7,7 +7,20 @@ const authController = require("../controllers/auth");
 
 router.get("/login", authController.getLogin);
 
-router.post("/login", authController.postLogin);
+router.post(
+  "/login",
+  [
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email.")
+      .normalizeEmail(),
+    body("password", "Password must be valid.")
+      .isLength({ min: 5 })
+      .isAlphanumeric()
+      .trim(),
+  ],
+  authController.postLogin
+);
 
 router.post("/logout", authController.postLogout);
 
@@ -23,18 +36,22 @@ router.post(
         if (value === "test@test.com")
           throw new Error("This email address is forbidden.");
         return true;
-      }),
+      })
+      .normalizeEmail(),
     body(
       "password",
       "Password must be alpha numeric and at least 5 characters long."
     )
       .isLength({ min: 5 })
-      .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password)
-        throw new Error("Passwords have to match!");
-      return true;
-    }),
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .custom((value, { req }) => {
+        if (value !== req.body.password)
+          throw new Error("Passwords have to match!");
+        return true;
+      })
+      .trim(),
   ],
   authController.postSignup
 );
