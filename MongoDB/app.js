@@ -25,7 +25,10 @@ const fileStorage = multer.diskStorage({
     cb(null, "images");
   },
   filename: (res, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
+    );
   },
 });
 
@@ -49,6 +52,7 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -91,12 +95,13 @@ app.get("/500", errorController.get500);
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
+  console.log(error);
   // res.redirect("/500");
-  res.status(500).render("500", {
-    pageTitle: "Error!",
-    path: "/500",
-    isLoggedIn: req.session.isLoggedIn,
-  });
+  // res.status(500).render("500", {
+  //   pageTitle: "Error!",
+  //   path: "/500",
+  //   isLoggedIn: req.session.isLoggedIn,
+  // });
 });
 
 mongoose
