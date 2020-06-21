@@ -168,8 +168,8 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product) => {
       if (!product) return next(new Error("Product not found."));
@@ -178,9 +178,11 @@ exports.postDeleteProduct = (req, res, next) => {
     })
     .then((result) => {
       console.log("Removed Product.");
-      res.redirect("/admin/products");
+      res.status(200).json({ message: "Deleting product failed." });
     })
-    .catch((err) => next(err));
+    .catch((err) =>
+      res.status(200).json({ message: "Deleting product failed." })
+    );
 
   // Product.findByIdAndRemove(prodId)
 };
