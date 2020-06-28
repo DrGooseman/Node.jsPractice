@@ -21,8 +21,12 @@ exports.getPosts = (req, res, next) => {
 
 exports.createPost = async (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(422).json({ message: "Validation fails.", errors });
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation fails.");
+    error.statusCode = 422;
+    throw error;
+  }
+
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
@@ -31,9 +35,14 @@ exports.createPost = async (req, res, next) => {
     imageUrl: "images/demo.jpg",
     creator: { name: "James" },
   });
-  await post.save();
-  res.status(201).json({
-    message: "Post Created.",
-    post,
-  });
+  try {
+    await post.save();
+    res.status(201).json({
+      message: "Post Created.",
+      post,
+    });
+  } catch (err) {
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
+  }
 };
