@@ -28,6 +28,7 @@ exports.createPost = async (req, res, next) => {
   const post = new Post({
     title,
     content,
+    imageUrl: "images/demo.jpg",
     creator: { name: "James" },
   });
   await post.save();
