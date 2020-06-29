@@ -45,9 +45,33 @@ exports.getPost = async (req, res, next) => {
   try {
     const post = await Post.findById(postId);
 
-    if (!post) throw new HttpError("Validation fails.", 422);
+    if (!post) throw new HttpError("Count not find post.", 404);
 
     res.status(200).json({ message: "Post fetched.", post });
+  } catch (err) {
+    next(new HttpError(err.message, 500));
+  }
+};
+
+exports.updatePost = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Validation fails.", 422);
+  }
+
+  const postId = req.params.postId;
+  const title = req.body.title;
+  const content = req.body.content;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) throw new HttpError("Count not find post.", 404);
+
+    post.title = title;
+    post.content = content;
+    await post.save();
+
+    res.status(200).json({ message: "Post updated.", post });
   } catch (err) {
     next(new HttpError(err.message, 500));
   }
