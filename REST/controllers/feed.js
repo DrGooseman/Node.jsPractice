@@ -76,3 +76,20 @@ exports.updatePost = async (req, res, next) => {
     next(new HttpError(err.message, 500));
   }
 };
+
+exports.deletePost = async (req, res, next) => {
+  const postId = req.params.postId;
+  const post = await Post.findById(postId);
+
+  try {
+    if (!post) throw new HttpError("Count not find post.", 404);
+
+    //check logged in user
+
+    await Post.findByIdAndRemove(postId);
+
+    res.status(200).json({ message: "Deleted post." });
+  } catch (err) {
+    next(new HttpError(err.message, 500));
+  }
+};
