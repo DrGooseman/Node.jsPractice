@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator/check");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 const HttpError = require("../models/http-error");
 
 exports.getPosts = async (req, res, next) => {
@@ -34,13 +35,17 @@ exports.createPost = async (req, res, next) => {
     title,
     content,
     imageUrl: "images/demo.jpg",
-    creator: { name: "James" },
+    creator: req.userId,
   });
   try {
     await post.save();
+    const user = await User.find(req.userId);
+    user.posts.push(post);
+    await user.save();
     res.status(201).json({
       message: "Post Created.",
       post,
+      creator: { _id: user._id, name: user.name },
     });
   } catch (err) {
     next(new HttpError(err.message, 500));
