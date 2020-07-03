@@ -78,6 +78,8 @@ exports.updatePost = async (req, res, next) => {
   try {
     const post = await Post.findById(postId);
     if (!post) throw new HttpError("Count not find post.", 404);
+    if (post.creator.toString() !== req.userId)
+      throw new HttpError("Not authorized.", 403);
 
     post.title = title;
     post.content = content;
@@ -95,7 +97,8 @@ exports.deletePost = async (req, res, next) => {
 
   try {
     if (!post) throw new HttpError("Count not find post.", 404);
-
+    if (post.creator.toString() !== req.userId)
+      throw new HttpError("Not authorized.", 403);
     //check logged in user
 
     await Post.findByIdAndRemove(postId);
