@@ -34,6 +34,12 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.MONGO_CONNECTION_STRING)
   .then((result) => {
-    app.listen(8080, () => console.log("Server running on port 8080"));
+    const server = app.listen(8080, () =>
+      console.log("Server running on port 8080")
+    );
+    const io = require("socket.io")(server);
+    io.on("connection", (socket) => {
+      console.log("client connected");
+    });
   })
   .catch((err) => console.log(err));
