@@ -81,7 +81,7 @@ exports.updatePost = async (req, res, next) => {
   try {
     const post = await Post.findById(postId).populate("creator");
     if (!post) throw new HttpError("Count not find post.", 404);
-    if (post.creator.toString() !== req.userId)
+    if (post.creator._id.toString() !== req.userId)
       throw new HttpError("Not authorized.", 403);
 
     post.title = title;
