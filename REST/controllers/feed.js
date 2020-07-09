@@ -79,7 +79,7 @@ exports.updatePost = async (req, res, next) => {
   const content = req.body.content;
 
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("creator");
     if (!post) throw new HttpError("Count not find post.", 404);
     if (post.creator.toString() !== req.userId)
       throw new HttpError("Not authorized.", 403);
@@ -87,7 +87,7 @@ exports.updatePost = async (req, res, next) => {
     post.title = title;
     post.content = content;
     await post.save();
-
+    io.getIO().emit("posts", { actions: "update", post });
     res.status(200).json({ message: "Post updated.", post });
   } catch (err) {
     next(new HttpError(err.message, 500));
