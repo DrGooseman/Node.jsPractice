@@ -14,11 +14,13 @@ exports.getPosts = async (req, res, next) => {
 
     const posts = await Post.find()
       .populate("creator")
+      .sort({ createdAt: -1 })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
     res.status(200).json({
       messsage: "Fetched posts successfully.",
       posts,
+      totalItems,
     });
   } catch (err) {
     next(new HttpError(err.message, 500));
@@ -88,6 +90,7 @@ exports.updatePost = async (req, res, next) => {
     post.content = content;
     await post.save();
     io.getIO().emit("posts", { actions: "update", post });
+
     res.status(200).json({ message: "Post updated.", post });
   } catch (err) {
     next(new HttpError(err.message, 500));
@@ -108,6 +111,7 @@ exports.deletePost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
+    io.getIO().emit("posts", { actions: "delete", post });
 
     res.status(200).json({ message: "Deleted post." });
   } catch (err) {
