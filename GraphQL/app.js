@@ -2,7 +2,8 @@ const path = require("path");
 
 const express = require("express");
 const mongoose = require("mongoose");
-const graphqlHttp = require("express-graphql");
+const { graphqlHTTP } = require("express-graphql");
+require("dotenv").config();
 
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
@@ -19,15 +20,23 @@ app.use((req, res, next) => {
     "GET, POST, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
 
 app.use(
   "/graphql",
-  graphqlHttp({
+  graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolver,
     graphiql: true,
+    formatError(err) {
+      if (!err.originalError) return err;
+      const data = err.originalError.data;
+      const message = err.message || "An error occurred.";
+      const code = err.originalError.code || 500;
+      return { message, status: code, data };
+    },
   })
 );
 
@@ -39,7 +48,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(process.env.MONGO_CONNECTION_STRING)
+  .connect(process.env.MONGO_CONNECTION_STRING, { useNewUrlParser: true })
   .then((result) => {
     app.listen(8080, () => console.log("Server running on port 8080"));
   })
