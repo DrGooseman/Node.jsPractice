@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolver = require("./graphql/resolvers");
+const auth = require("./middleware/is-auth");
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
+
+app.use(auth);
 
 app.use(
   "/graphql",

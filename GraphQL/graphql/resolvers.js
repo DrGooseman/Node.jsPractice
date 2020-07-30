@@ -3,6 +3,7 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
+const Post = require("../models/post");
 const HttpError = require("../models/http-error");
 
 module.exports = {
@@ -27,7 +28,8 @@ module.exports = {
   login: async function ({ email, password }, req) {
     const user = await User.findOne({ email });
     if (!user) throw new HttpError("User not found!", 401);
-    const isEqual = bcrypt.compare(password, user.password);
+
+    const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) throw new HttpError("Password is incorrect!", 401);
     const token = jwt.sign(
       {
@@ -43,5 +45,27 @@ module.exports = {
     const users = await User.find();
     console.log(users);
     return users;
+  },
+  createPost: async function ({ userInput }, req) {
+    if (!req.isAuth) throw new HttpError("Not Authenticated!", 401);
+
+    const user = await User.findById(req.userId);
+    if (!user) throw new HttpError("Invalid user!", 401);
+
+    const post = new Post({
+      title: postInput.title,
+      content: postInput.content,
+      imageUrl: postInput.imageUrl,
+      creator: user,
+    });
+    const createdPost = await post.save();
+    user.posts.push(createdPost);
+    await user.save();
+    return {
+      ...createdPost._doc,
+      _id: createdPost._id.toString(),
+      createdAt: createdPost.createdAt.toISOString(),
+      updatedAt: createdPost.updatedAt.toISOString(),
+    };
   },
 };
